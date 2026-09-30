@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maafin Aku Ya...</title>
+  <!-- SweetAlert2 untuk Pop-up -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Sacramento&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    /* Container Kartu */
+    .card {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 35px 25px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 100%;
+      max-width: 380px;
+      position: relative;
+    }
+
+    /* HALAMAN AWAL (LANDING PAGE) */
+    #welcome-page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .welcome-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #333333;
+      margin-bottom: 8px;
+    }
+
+    .welcome-sub {
+      font-size: 13px;
+      color: #666666;
+      margin-bottom: 25px;
+    }
+
+    /* HALAMAN UTAMA / SURAT (Awalnya tersembunyi) */
+    #letter-page {
+      display: none;
+    }
+
+    /* Judul Tulisan Tangan */
+    .title {
+      font-family: 'Sacramento', cursive;
+      font-size: 42px;
+      color: #ff4d6d;
+      margin-bottom: 15px;
+      font-weight: 500;
+    }
+
+    /* Kotak Pesan */
+    .message-box {
+      background: #fff8f9;
+      border: 1px solid #ffe0e6;
+      border-radius: 16px;
+      padding: 18px;
+      min-height: 110px;
+      text-align: left;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #4a4a4a;
+      margin-bottom: 25px;
+    }
+
+    /* Area Tombol */
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      min-height: 40px;
+    }
+
+    .btn {
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Tombol Buka Pesan di Halaman Awal */
+    .btn-open {
+      background-color: #ff4d6d;
+      color: white;
+      box-shadow: 0 4px 12px rgba(255, 77, 109, 0.4);
+      width: 100%;
+      padding: 10px 20px;
+      font-size: 14px;
+    }
+
+    .btn-open:hover {
+      transform: scale(1.03);
+      background-color: #ff3355;
+    }
+
+    /* Tombol Dimaafin (Hijau) */
+    .btn-yes {
+      background-color: #2ed573;
+      color: white;
+      box-shadow: 0 3px 10px rgba(46, 213, 115, 0.35);
+      flex: 1;
+    }
+
+    .btn-yes:hover {
+      transform: scale(1.05);
+      background-color: #26af5f;
+    }
+
+    /* Tombol Enggak (Merah - Pindah-pindah) */
+    .btn-no {
+      background-color: #ff4757;
+      color: white;
+      box-shadow: 0 3px 10px rgba(255, 71, 87, 0.35);
+      flex: 1;
+      position: absolute;
+      right: 0;
+      z-index: 999;
+      transition: all 0.15s ease-out;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HALAMAN AWAL (LANDING PAGE) -->
+  <div id="welcome-page" class="card">
+    <div class="welcome-title">Ada Pesan Buat Kamu</div>
+    <div class="welcome-sub">Minta waktunya sebentar ya...</div>
+    <button class="btn btn-open" onclick="bukaPesan()">Pencet di Sini</button>
+  </div>
+
+  <!-- HALAMAN UTAMA (KARTU SURAT) -->
+  <div id="letter-page" class="card">
+    <div class="title">Maafin Aku Ya Sayang...</div>
+    
+    <div class="message-box">
+      <span id="typedText"></span>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-yes" onclick="terimaMaaf()">Dimaafin</button>
+      <button class="btn btn-no" id="btnNo" onmouseover="pindahTombol()" onclick="pindahTombol()" ontouchstart="pindahTombol()">Enggak</button>
+    </div>
+  </div>
+
+  <script>
+    // Teks pesan yang akan diketik otomatis
+    const pesanMaaf = "Aku mau minta maaf karena kemarin udah bikin kamu sakit hati... Aku beneran nyesel dan ga ada niat sedikitpun buat bikin kamu sedih atau sakit hati. Kamu masih mau maafin aku kan? ;(";
+    
+    let indexKetik = 1;
+    const kecepatanKetik = 10;
+
+    // Fungsi untuk membuka halaman utama
+    function bukaPesan() {
+      document.getElementById("welcome-page").style.display = "none";
+      document.getElementById("letter-page").style.display = "block";
+      mulaiKetik();
+    }
+
+    // Fungsi Ketik Otomatis
+    function mulaiKetik() {
+      if (indexKetik < pesanMaaf.length) {
+        document.getElementById("typedText").innerHTML += pesanMaaf.charAt(indexKetik);
+        indexKetik++;
+        setTimeout(mulaiKetik, kecepatanKetik);
+      }
+    }
+
+    // Fungsi memindahkan tombol "Enggak" secara acak
+    function pindahTombol() {
+      const btnNo = document.getElementById("btnNo");
+      btnNo.style.position = "fixed";
+      
+      const padding = 20;
+      const maxX = window.innerWidth - btnNo.offsetWidth - padding;
+      const maxY = window.innerHeight - btnNo.offsetHeight - padding;
+
+      const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
+      const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
+
+      btnNo.style.left = randomX + "px";
+      btnNo.style.top = randomY + "px";
+    }
+
+    // Jika mengeklik tombol "Dimaafin"
+    function terimaMaaf() {
+      document.getElementById("btnNo").style.display = "none";
+
+      Swal.fire({
+        title: 'Makasih Banyaak!',
+        text: 'Janji deh aku ga bakal bikin kamu kesel atau sedih lagi.',
+        icon: 'success',
+        confirmButtonColor: '#2ed573',
+        confirmButtonText: 'Sama-sama'
+      });
+    }
+  </script>
+
+</body>
+</html>
